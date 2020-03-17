@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type data struct {
 func main() {
 
 	// Set a deadline.
-	deadline := time.Now().Add(3000 * time.Millisecond)
+	deadline := time.Now().Add(300 * time.Millisecond)
 
 	// Create a context that is both manually cancellable and will signal
 	// a cancel at the specified date/time.
@@ -35,6 +36,7 @@ func main() {
 
 		// Report the work is done.
 		ch <- data{"123"}
+		fmt.Println("work done!")
 	}()
 
 	// Wait for the work to finish. If it takes too long move on.
@@ -52,4 +54,10 @@ ControlLoop:
 			break ControlLoop
 		}
 	}
+
+	for {
+		time.Sleep(1 * time.Second)
+		fmt.Println(runtime.NumGoroutine())
+	}
+
 }
