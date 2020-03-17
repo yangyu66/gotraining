@@ -17,7 +17,7 @@ type data struct {
 func main() {
 
 	// Set a deadline.
-	deadline := time.Now().Add(150 * time.Millisecond)
+	deadline := time.Now().Add(3000 * time.Millisecond)
 
 	// Create a context that is both manually cancellable and will signal
 	// a cancel at the specified date/time.
@@ -31,18 +31,25 @@ func main() {
 	go func() {
 
 		// Simulate work.
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(2000 * time.Millisecond)
 
 		// Report the work is done.
 		ch <- data{"123"}
 	}()
 
 	// Wait for the work to finish. If it takes too long move on.
-	select {
-	case d := <-ch:
-		fmt.Println("work complete", d)
+ControlLoop:
 
-	case <-ctx.Done():
-		fmt.Println("work cancelled")
+	for {
+		fmt.Println("check")
+		select {
+		case d := <-ch:
+			fmt.Println("work complete", d)
+			break ControlLoop
+
+		case <-ctx.Done():
+			fmt.Println("Time out! Work cancelled")
+			break ControlLoop
+		}
 	}
 }

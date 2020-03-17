@@ -15,7 +15,7 @@ import (
 )
 
 // Give the program 3 seconds to complete the work.
-const timeoutSeconds = 3 * time.Second
+const timeoutSeconds = 5 * time.Second
 
 func main() {
 
@@ -104,7 +104,7 @@ func processor(complete chan<- error, shutdown <-chan struct{}) {
 // doWork simulates task work.
 func doWork(shutdown <-chan struct{}) error {
 	log.Println("Processor - Task 1")
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	if checkShutdown(shutdown) {
 		return errors.New("Early Shutdown")
@@ -127,10 +127,12 @@ func doWork(shutdown <-chan struct{}) error {
 // if we have been asked to interrupt processing.
 func checkShutdown(shutdown <-chan struct{}) bool {
 	select {
-	case <-shutdown:
+	case v, ok := <-shutdown:
 
 		// We have been asked to shutdown cleanly.
 		log.Println("checkShutdown - Shutdown Early")
+		log.Println(v)
+		log.Println(ok)
 		return true
 
 	default:
