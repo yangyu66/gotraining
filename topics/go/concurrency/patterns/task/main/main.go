@@ -13,13 +13,24 @@ import (
 	"github.com/ardanlabs/gotraining/topics/go/concurrency/patterns/task"
 )
 
-// names provides a set of names to display.
-var names = []string{
+// names provides a set of names need to display / print.
+var printnametasks = []string{
 	"steve",
 	"bob",
 	"mary",
 	"therese",
 	"jason",
+	"steve",
+	"bob",
+	"mary",
+	"therese",
+	"jason",
+	"chen",
+	"bob",
+	"mary",
+	"therese",
+	"jason",
+	"chen",
 }
 
 // namePrinter provides special support for printing names.
@@ -30,37 +41,34 @@ type namePrinter struct {
 // Work implements the Worker interface.
 func (m namePrinter) Work() {
 	log.Println(m.name)
-	time.Sleep(3 * time.Second)
+	time.Sleep(2 * time.Second)
 }
 
 func main() {
-	const routines = 10
+	const routines = 5
 
 	// Create a task pool.
 	t := task.New(routines)
 
 	var wg sync.WaitGroup
-	wg.Add(routines * len(names))
+	wg.Add(len(printnametasks))
 
-	for i := 0; i < routines; i++ {
+	// Iterate over the slice of names.
+	for _, name := range printnametasks {
 
-		// Iterate over the slice of names.
-		for _, name := range names {
-
-			// Create a namePrinter and provide the
-			// specific name.
-			np := namePrinter{
-				name: name,
-			}
-
-			go func() {
-
-				// Submit the task to be worked on. When Do
-				// returns, we know it is being handled.
-				t.Do(np)
-				wg.Done()
-			}()
+		// Create a namePrinter and provide the
+		// specific name.
+		np := namePrinter{
+			name: name,
 		}
+
+		go func() {
+
+			// Submit the task to be worked on. When Do
+			// returns, we know it is being handled.
+			t.Do(np)
+			wg.Done()
+		}()
 	}
 
 	wg.Wait()
