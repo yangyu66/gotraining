@@ -6,6 +6,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -39,9 +40,10 @@ type namePrinter struct {
 }
 
 // Work implements the Worker interface.
-func (m namePrinter) Work() {
+func (m namePrinter) Work() string {
 	log.Println(m.name)
 	time.Sleep(2 * time.Second)
+	return m.name
 }
 
 func main() {
@@ -67,6 +69,8 @@ func main() {
 			// Submit the task to be worked on. When Do
 			// returns, we know it is being handled.
 			t.Do(np)
+			result := <-t.Res
+			fmt.Println(result)
 			wg.Done()
 		}()
 	}

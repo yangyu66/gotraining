@@ -9,7 +9,7 @@ import "sync"
 // Worker must be implemented by types that want to use
 // the run pool.
 type Worker interface {
-	Work()
+	Work() string
 }
 
 // Task provides a pool of goroutines that can execute any Worker
@@ -17,6 +17,7 @@ type Worker interface {
 type Task struct {
 	work chan Worker
 	wg   sync.WaitGroup
+	Res  chan string
 }
 
 // New creates a new work pool.
@@ -27,6 +28,7 @@ func New(maxGoroutines int) *Task {
 		// guarantee of knowing the work being submitted is
 		// actually being worked on after the call to Run returns.
 		work: make(chan Worker),
+		Res:  make(chan string, 3),
 	}
 
 	// The goroutines are the pool. So we could add code
@@ -36,7 +38,8 @@ func New(maxGoroutines int) *Task {
 	for i := 0; i < maxGoroutines; i++ {
 		go func() {
 			for w := range t.work {
-				w.Work()
+				r := w.Work()
+				t.Res <- r
 			}
 			t.wg.Done()
 		}()
@@ -48,6 +51,7 @@ func New(maxGoroutines int) *Task {
 // Shutdown waits for all the goroutines to shutdown.
 func (t *Task) Shutdown() {
 	close(t.work)
+	close(t.Res)
 	t.wg.Wait()
 }
 
