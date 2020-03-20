@@ -15,6 +15,10 @@ type AppError struct {
 	State int
 }
 
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
 // Error implements the error interface.
 func (c *AppError) Error() string {
 	return fmt.Sprintf("App Error, State: %d", c.State)
@@ -31,6 +35,11 @@ func main() {
 
 			// We got our custom error type.
 			fmt.Println("Custom App Error:", v.State)
+			if err, ok := err.(stackTracer); ok {
+				for _, f := range err.StackTrace() {
+					fmt.Printf("%+s:%d\n", f, f)
+				}
+			}
 
 		default:
 
