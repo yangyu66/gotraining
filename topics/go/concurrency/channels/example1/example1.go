@@ -20,17 +20,17 @@ func init() {
 
 func main() {
 
-	waitForResult()
+	//waitForResult()
 	// fanOut()
 
 	// waitForTask()
-	// pooling()
+	//pooling()
 
 	// Advanced patterns
-	// fanOutSem()
+	//fanOutSem()
 	// boundedWorkPooling()
 	// drop()
-	// cancellation()
+	cancellation()
 }
 
 // waitForResult: You are a manager and you hire a new employee. Your new
@@ -115,19 +115,29 @@ func pooling() {
 	ch := make(chan string)
 
 	g := runtime.NumCPU()
+	g = 2
 	for e := 0; e < g; e++ {
 		go func(emp int) {
 			for p := range ch {
+				time.Sleep(1000 * time.Millisecond)
 				fmt.Printf("employee %d : recv'd signal : %s\n", emp, p)
 			}
 			fmt.Printf("employee %d : recv'd shutdown signal\n", emp)
 		}(e)
 	}
 
-	const work = 100
+	const work = 10
 	for w := 0; w < work; w++ {
 		ch <- "paper"
 		fmt.Println("manager : sent signal :", w)
+
+		// time.Sleep(500 * time.Millisecond)
+		// select {
+		// case ch <- "paper":
+		// 	fmt.Println("manager : sent signal :", w)
+		// default:
+		// 	fmt.Println("manager : dropped data :", w)
+		// }
 	}
 
 	close(ch)
@@ -146,17 +156,17 @@ func pooling() {
 // guarantee that all the results sent by employees are received by you. No
 // given employee needs an immediate guarantee that you received their result.
 func fanOutSem() {
-	emps := 2000
+	emps := 20
 	ch := make(chan string, emps)
 
-	g := runtime.NumCPU()
-	sem := make(chan bool, g)
+	//g := runtime.NumCPU()
+	sem := make(chan bool, 2)
 
 	for e := 0; e < emps; e++ {
 		go func(emp int) {
 			sem <- true
 			{
-				time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+				time.Sleep(time.Duration(1000 * time.Millisecond))
 				ch <- "paper"
 				fmt.Println("employee : sent signal :", emp)
 			}
@@ -261,7 +271,7 @@ func cancellation() {
 	ch := make(chan string, 1)
 
 	go func() {
-		time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+		time.Sleep(time.Duration(200) * time.Millisecond)
 		ch <- "paper"
 	}()
 
@@ -275,4 +285,8 @@ func cancellation() {
 
 	time.Sleep(time.Second)
 	fmt.Println("-------------------------------------------------------------")
+	for {
+		fmt.Println(runtime.NumGoroutine())
+		time.Sleep(1 * time.Second)
+	}
 }
