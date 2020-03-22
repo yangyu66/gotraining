@@ -2,6 +2,7 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 
 // go test -run none -bench . -benchtime 3s -benchmem
+// go test -run none -bench Sprint$ -benchtime 3s -benchmem
 
 // Basic benchmark test.
 package basic
